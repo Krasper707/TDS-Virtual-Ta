@@ -39,7 +39,8 @@ class APIRequest(BaseModel):
 
 class Link(BaseModel):
     url: str
-    text: str
+    snippet: str
+    full_text: str
 
 class APIResponse(BaseModel):
     answer: str
