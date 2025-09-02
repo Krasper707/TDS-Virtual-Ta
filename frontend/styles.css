@@ -240,3 +240,36 @@ button:active {
         font-size: 1.8em;
     }
 }
+
+/* The hidden full text block */
+.source-full-text {
+    display: none; /* Hidden by default */
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border-color);
+    font-size: 0.95em;
+    line-height: 1.7;
+    white-space: pre-wrap; /* Preserves formatting */
+    color: #374151; /* A slightly softer black */
+}
+
+/* The button to toggle visibility */
+.toggle-more-btn {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 0.9em;
+    cursor: pointer;
+    padding: 8px 0 0 0;
+    margin-top: 8px;
+}
+
+.toggle-more-btn:hover {
+    text-decoration: underline;
+}
+
+/* When the card is expanded, show the full text */
+.source-card.expanded .source-full-text {
+    display: block;
+}

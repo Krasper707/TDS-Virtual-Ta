@@ -93,45 +93,59 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Function to Display a Successful Response ---
-    function displayResponse(data) {
-        answerElement.textContent = data.answer;
-        linksElement.innerHTML = ''; // Clear any previous links
+function displayResponse(data) {
+    answerElement.textContent = data.answer;
+    linksElement.innerHTML = ''; // Clear any previous content
 
-        if (data.links && data.links.length > 0) {
-            data.links.forEach(link => {
-                const linkItem = document.createElement('a');
-                linkItem.href = link.url;
-                linkItem.target = "_blank"; // Open links in a new tab
-                
-                const urlElement = document.createElement('strong');
-                try {
-                    // Show just the hostname (e.g., "example.com") for a cleaner look
-                    urlElement.textContent = new URL(link.url).hostname;
-                } catch {
-                    urlElement.textContent = link.url; // Fallback for invalid URLs
+    if (data.links && data.links.length > 0) {
+        data.links.forEach(link => {
+            // --- Create the new card structure ---
+            const sourceCard = document.createElement('div');
+            sourceCard.className = 'source-card';
+
+            const quoteElement = document.createElement('blockquote');
+            quoteElement.className = 'source-quote';
+            quoteElement.textContent = `"${link.snippet}"`;
+
+            const fullTextElement = document.createElement('div');
+            fullTextElement.className = 'source-full-text';
+            fullTextElement.textContent = link.full_text;
+
+            const pathElement = document.createElement('p');
+            pathElement.className = 'source-path';
+            pathElement.textContent = `Source: ${link.url}`;
+
+            const toggleBtn = document.createElement('button');
+            toggleBtn.className = 'toggle-more-btn';
+            toggleBtn.textContent = 'Show More';
+
+            // --- Add the click event listener for the toggle ---
+            toggleBtn.addEventListener('click', () => {
+                sourceCard.classList.toggle('expanded');
+                if (sourceCard.classList.contains('expanded')) {
+                    toggleBtn.textContent = 'Show Less';
+                } else {
+                    toggleBtn.textContent = 'Show More';
                 }
-
-                const textElement = document.createElement('p');
-                textElement.className = 'link-text';
-                textElement.textContent = link.text;
-                
-                linkItem.appendChild(urlElement);
-                linkItem.appendChild(textElement);
-
-                linksElement.appendChild(linkItem);
             });
-        }
-        
-        // --- Trigger the Fade-In Animation ---
-        // 1. Make the container a block element so it takes up space.
-        responseContainer.style.display = 'block';
-        
-        // 2. Add the 'visible' class to trigger the CSS transition.
-        // A tiny timeout ensures the browser processes the display change before starting the animation.
-        setTimeout(() => {
-            responseContainer.classList.add('visible');
-        }, 10);
+            
+            // --- Append all elements to the card ---
+            sourceCard.appendChild(quoteElement);
+            sourceCard.appendChild(toggleBtn); // Button comes after snippet
+            sourceCard.appendChild(fullTextElement); // Full text is hidden by CSS
+            sourceCard.appendChild(pathElement);
+
+            linksElement.appendChild(sourceCard);
+        });
     }
+
+    // --- Trigger the Fade-In Animation ---
+    responseContainer.style.display = 'block';
+    setTimeout(() => {
+        responseContainer.classList.add('visible');
+    }, 10);
+}
+
 
     // --- Function to Display an Error Message ---
     function displayError(errorMessage) {

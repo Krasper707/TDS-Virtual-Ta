@@ -90,7 +90,7 @@ def generate_final_response(question: str, context: list):
         [f"Source URL: {row['website_url']}\nContent: {row['content']}" for row in context]
     )
 
-    unique_links = [dict(t) for t in {tuple(d.items()) for d in context}]
+    unique_links_raw = [dict(t) for t in {tuple(d.items()) for d in context}]
 
     system_prompt = (
         """You are a helpful TA for IITM's TDS course. 
@@ -114,7 +114,20 @@ def generate_final_response(question: str, context: list):
 
     llm_response_dict = json.loads(response.choices[0].message.content)
 
-    final_response= {"answer":llm_response_dict.get("answer", "The AI model did not generate a valid answer."),"links": [{"url": link['website_url'], "text": link['content'][:150] + "..."} for link in unique_links]}
+    final_links = []
+    for link_data in unique_links_raw:
+        content = link_data['content']
+        snippet = content[:200] + "..." if len(content) > 200 else content
+        final_links.append({
+            "url": link_data['website_url'],
+            "snippet": snippet,
+            "full_text": content
+        })
+    
+    final_response = {
+        "answer": llm_response_dict.get("answer", "The AI model did not generate a valid answer."),
+        "links": final_links
+    }
     return final_response
     
 
