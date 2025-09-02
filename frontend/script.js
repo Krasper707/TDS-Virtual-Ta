@@ -1,5 +1,5 @@
-
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Element Selections ---
     const form = document.getElementById('qa-form');
     const questionInput = document.getElementById('question');
     const imageInput = document.getElementById('image');
@@ -11,13 +11,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const linksElement = document.getElementById('links');
     const submitBtn = document.getElementById('submit-btn');
 
-    const API_URL = "https://tds-virtual-ta-xs1q.vercel.app/api/";  // <-- IMPORTANT: Make sure this is your correct URL!
+    // --- API Configuration ---
+    const API_URL = "https://tds-virtual-ta-xs1q.vercel.app/api/";
 
-    // Handle image preview and file name display
+    // --- Initial State ---
+    // Hide the response container completely on page load.
+    // It will be made visible only after a response is received.
+    responseContainer.style.display = 'none';
+
+    // --- Event Listener for Image Input ---
     imageInput.addEventListener('change', () => {
         const file = imageInput.files[0];
         if (file) {
-            fileNameElement.textContent = file.name; // Show file name
+            // Display the selected file's name
+            fileNameElement.textContent = file.name;
             const reader = new FileReader();
             reader.onload = function(e) {
                 imagePreview.src = e.target.result;
@@ -25,31 +32,36 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             reader.readAsDataURL(file);
         } else {
+            // Reset to default state if no file is chosen
             fileNameElement.textContent = "Click or drag to upload";
             imagePreview.classList.add('hidden');
         }
     });
 
-    // Handle form submission
+    // --- Event Listener for Form Submission ---
     form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+        e.preventDefault(); // Prevent the default form submission
 
         const question = questionInput.value;
         const imageFile = imageInput.files[0];
         let base64Image = null;
 
-        // Show loading state
+        // --- Set UI to Loading State ---
         submitBtn.disabled = true;
         submitBtn.textContent = 'Thinking...';
         loadingSpinner.classList.remove('hidden');
-        responseContainer.classList.remove('visible'); // Hide previous response for animation
+        
+        // Hide the previous response and remove the animation class for the next run
+        responseContainer.classList.remove('visible');
+        responseContainer.style.display = 'none';
 
-        // Convert image to base64 if it exists
+        // Convert the image to base64 if one was provided
         if (imageFile) {
             base64Image = await toBase64(imageFile);
         }
 
         try {
+            // --- Make the API Call ---
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: {
@@ -57,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify({
                     question: question,
-                    image: base64Image,
+                    image: base64Image, // This will be null if no image was selected
                 }),
             });
 
@@ -70,27 +82,34 @@ document.addEventListener('DOMContentLoaded', () => {
             displayResponse(data);
 
         } catch (error) {
+            console.error("API call failed:", error); // Log the error for debugging
             displayError(error.message);
         } finally {
-            // Hide loading state and restore button
+            // --- Restore UI from Loading State ---
             loadingSpinner.classList.add('hidden');
             submitBtn.disabled = false;
             submitBtn.textContent = 'Get Answer';
         }
     });
 
+    // --- Function to Display a Successful Response ---
     function displayResponse(data) {
         answerElement.textContent = data.answer;
-        linksElement.innerHTML = ''; // Clear previous links
+        linksElement.innerHTML = ''; // Clear any previous links
 
         if (data.links && data.links.length > 0) {
             data.links.forEach(link => {
                 const linkItem = document.createElement('a');
                 linkItem.href = link.url;
-                linkItem.target = "_blank";
+                linkItem.target = "_blank"; // Open links in a new tab
                 
                 const urlElement = document.createElement('strong');
-                urlElement.textContent = new URL(link.url).hostname; // Show hostname for cleaner look
+                try {
+                    // Show just the hostname (e.g., "example.com") for a cleaner look
+                    urlElement.textContent = new URL(link.url).hostname;
+                } catch {
+                    urlElement.textContent = link.url; // Fallback for invalid URLs
+                }
 
                 const textElement = document.createElement('p');
                 textElement.className = 'link-text';
@@ -102,20 +121,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 linksElement.appendChild(linkItem);
             });
         }
-        // Trigger the animation by adding the 'visible' class
-        responseContainer.classList.add('visible');
+        
+        // --- Trigger the Fade-In Animation ---
+        // 1. Make the container a block element so it takes up space.
+        responseContainer.style.display = 'block';
+        
+        // 2. Add the 'visible' class to trigger the CSS transition.
+        // A tiny timeout ensures the browser processes the display change before starting the animation.
+        setTimeout(() => {
+            responseContainer.classList.add('visible');
+        }, 10);
     }
 
+    // --- Function to Display an Error Message ---
     function displayError(errorMessage) {
         answerElement.textContent = `An error occurred: ${errorMessage}`;
-        linksElement.innerHTML = '';
-        responseContainer.classList.add('visible');
+        linksElement.innerHTML = ''; // Clear links on error
+        
+        // Ensure the error message is also visible with the animation
+        responseContainer.style.display = 'block';
+        setTimeout(() => {
+            responseContainer.classList.add('visible');
+        }, 10);
     }
 
+    // --- Utility Function to Convert a File to a Base64 String ---
     const toBase64 = file => new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = () => {
+            // The result includes a prefix like "data:image/jpeg;base64,"
+            // We split on the comma and take the second part to get only the base64 data.
             const base64String = reader.result.split(',')[1];
             resolve(base64String);
         };
