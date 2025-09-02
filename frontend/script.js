@@ -1,21 +1,23 @@
+
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('qa-form');
     const questionInput = document.getElementById('question');
     const imageInput = document.getElementById('image');
     const imagePreview = document.getElementById('image-preview');
+    const fileNameElement = document.getElementById('file-name');
     const loadingSpinner = document.getElementById('loading');
     const responseContainer = document.getElementById('response-container');
     const answerElement = document.getElementById('answer');
     const linksElement = document.getElementById('links');
+    const submitBtn = document.getElementById('submit-btn');
 
-    // IMPORTANT: Replace this with your actual deployed Vercel API URL
-    const API_URL = "https://tds-virtual-ta-xs1q.vercel.app/api/"; 
-    // Example: "https://my-fastapi-app.vercel.app/api/"
+    const API_URL = "https://tds-virtual-ta-xs1q.vercel.app/api/";  // <-- IMPORTANT: Make sure this is your correct URL!
 
-    // Handle image preview
+    // Handle image preview and file name display
     imageInput.addEventListener('change', () => {
         const file = imageInput.files[0];
         if (file) {
+            fileNameElement.textContent = file.name; // Show file name
             const reader = new FileReader();
             reader.onload = function(e) {
                 imagePreview.src = e.target.result;
@@ -23,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             reader.readAsDataURL(file);
         } else {
+            fileNameElement.textContent = "Click or drag to upload";
             imagePreview.classList.add('hidden');
         }
     });
@@ -35,9 +38,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const imageFile = imageInput.files[0];
         let base64Image = null;
 
-        // Show loading spinner and hide previous response
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Thinking...';
         loadingSpinner.classList.remove('hidden');
-        responseContainer.classList.add('hidden');
+        responseContainer.classList.remove('visible'); // Hide previous response for animation
 
         // Convert image to base64 if it exists
         if (imageFile) {
@@ -67,8 +72,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             displayError(error.message);
         } finally {
-            // Hide loading spinner
+            // Hide loading state and restore button
             loadingSpinner.classList.add('hidden');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Get Answer';
         }
     });
 
@@ -80,10 +87,10 @@ document.addEventListener('DOMContentLoaded', () => {
             data.links.forEach(link => {
                 const linkItem = document.createElement('a');
                 linkItem.href = link.url;
-                linkItem.target = "_blank"; // Open in new tab
+                linkItem.target = "_blank";
                 
                 const urlElement = document.createElement('strong');
-                urlElement.textContent = link.url;
+                urlElement.textContent = new URL(link.url).hostname; // Show hostname for cleaner look
 
                 const textElement = document.createElement('p');
                 textElement.className = 'link-text';
@@ -95,22 +102,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 linksElement.appendChild(linkItem);
             });
         }
-        responseContainer.classList.remove('hidden');
+        // Trigger the animation by adding the 'visible' class
+        responseContainer.classList.add('visible');
     }
 
     function displayError(errorMessage) {
         answerElement.textContent = `An error occurred: ${errorMessage}`;
         linksElement.innerHTML = '';
-        responseContainer.classList.remove('hidden');
+        responseContainer.classList.add('visible');
     }
 
-    // Utility to convert file to base64
     const toBase64 = file => new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = () => {
-            // The result includes the data URL prefix (e.g., "data:image/jpeg;base64,").
-            // We need to strip this prefix as the backend expects only the base64 string.
             const base64String = reader.result.split(',')[1];
             resolve(base64String);
         };

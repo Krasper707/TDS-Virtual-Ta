@@ -4,34 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TDS Virtual TA</title>
+    <!-- We link to the CSS file, which now imports the font -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header>
             <h1>TDS Virtual TA</h1>
-            <p>Ask a question about the TDS course. You can also upload an image for context.</p>
+            <p>Your AI-powered guide for the TDS course.</p>
         </header>
         <main>
             <form id="qa-form">
                 <div class="form-group">
-                    <label for="question">Question</label>
-                    <input type="text" id="question" name="question" placeholder="e.g., What is backpropagation?" required>
+                    <label for="question">Ask your question</label>
+                    <input type="text" id="question" name="question" placeholder="e.g., How does a Transformer model work?" required>
                 </div>
                 <div class="form-group">
-                    <label for="image">Optional Image</label>
-                    <input type="file" id="image" name="image" accept="image/*">
+                    <label for="image">Upload an Image (Optional)</label>
+                    <!-- Improved file input structure for styling -->
+                    <div class="file-input-wrapper">
+                        <span id="file-name" class="file-input-label">Click or drag to upload</span>
+                        <input type="file" id="image" name="image" accept="image/*">
+                    </div>
                     <img id="image-preview" src="" alt="Image preview" class="hidden"/>
                 </div>
-                <button type="submit" id="submit-btn">Ask</button>
+                <button type="submit" id="submit-btn">Get Answer</button>
             </form>
             <div id="loading" class="hidden">
                 <div class="spinner"></div>
             </div>
-            <div id="response-container" class="hidden">
+            <!-- The visible class will be toggled by JS for the animation -->
+            <div id="response-container" class="">
                 <h2>Answer</h2>
                 <p id="answer"></p>
-                <h3>Related Links</h3>
+                <h3>Sources</h3>
                 <div id="links"></div>
             </div>
         </main>
