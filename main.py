@@ -113,22 +113,30 @@ def generate_final_response(question: str, context: list):
     )
 
     llm_response_dict = json.loads(response.choices[0].message.content)
+    answer = llm_response_dict.get("answer", "The AI model did not generate a valid answer.")
 
-    final_links = []
-    for link_data in unique_links_raw:
-        content = link_data['content']
-        snippet = content[:200] + "..." if len(content) > 200 else content
-        final_links.append({
-            "url": link_data['website_url'],
-            "snippet": snippet,
-            "full_text": content
-        })
-    
+    # --- THIS IS THE FIX ---
+    # If the LLM gives the "I don't know" answer, return an EMPTY list of links.
+    if "I do not have enough information" in answer:
+        final_links = []
+    else:
+        # Otherwise, if the answer is useful, process the links as before.
+        final_links = []
+        for link_data in unique_links_raw:
+            content = link_data.get('content', '')
+            snippet = (content[:200] + "...") if len(content) > 200 else content
+            final_links.append({
+                "url": link_data.get('website_url', ''),
+                "snippet": snippet,
+                "full_text": content
+            })
+
     final_response = {
-        "answer": llm_response_dict.get("answer", "The AI model did not generate a valid answer."),
+        "answer": answer,
         "links": final_links
     }
     return final_response
+
     
 
 # ---- API ENDPOINT ----
