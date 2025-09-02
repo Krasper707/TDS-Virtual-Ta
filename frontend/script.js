@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const linksElement = document.getElementById('links');
 
     // IMPORTANT: Replace this with your actual deployed Vercel API URL
-    const API_URL = "YOUR_DEPLOYED_API_ENDPOINT/api/"; 
+    const API_URL = "https://tds-virtual-ta-xs1q.vercel.app/api/"; 
     // Example: "https://my-fastapi-app.vercel.app/api/"
 
     // Handle image preview
