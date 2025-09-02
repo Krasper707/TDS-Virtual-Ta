@@ -8,7 +8,7 @@ Supports both:
 
 - 🖼️ Image-based questions (via Gemini Vision API)
 
- >📍 Deployed at: https://virtualta-pi.vercel.app/api/
+ >📍 Deployed at: [Link](https://tds-virtual-ta-final-sooty.vercel.app/)
 
 ## 🔧 Features
 
