@@ -25,8 +25,8 @@ Supports both:
 ## 🛠️ Setup Instructions (with uv)
 1. Clone the repository
 ```bash
-git clone https://github.com/KarthikMurali-M/TDS-Project1-T2-VirtualTA.git
-cd TDS-Project1-T2-VirtualTA
+https://github.com/Krasper707/TDS-Virtual-Ta.git
+cd TDS-Virtual-Ta
 ```
 2. Set up the environment using uv
 ```bash
@@ -57,7 +57,7 @@ Access the API at: ```http://127.0.0.1:8000/api/```
 
 ## 📦 Project Structure
 ```
-virtual-ta-api/
+TDS-Virtual-Ta/
 ├── main.py                     # FastAPI app
 ├── requirements.txt            # Python dependencies
 ├── .env                        # Environment variables (not committed)
